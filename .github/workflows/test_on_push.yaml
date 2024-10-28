@@ -28,11 +28,11 @@ jobs:
          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
      - name: Install dependencies
        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-       run: poetry install --no-interaction --no-root
+       run: cd webapp && poetry install --no-interaction --no-root
      - name: Install project
-       run: poetry install --no-interaction
+       run: cd webapp && poetry install --no-interaction
      - name: Run tests
        run: |
          source .venv/bin/activate
-         poetry run coverage run webapp/tests.py
+         cd webapp && poetry run coverage run webapp/tests.py
          poetry run coverage report
