@@ -13,9 +13,26 @@ jobs:
        with:
          python-version: '3.8'
          architecture: 'x64'
-     - name: Install requirements
-       run: cd webapp && poetry install
+     - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          virtualenvs-path: .venv
+          installer-parallel: true
+     - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+     - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction --no-root
+     - name: Install project
+        run: poetry install --no-interaction
      - name: Run tests
-       run: cd webapp && poetry run coverage run webapp/tests.py
-     - name: Tests report
-       run: cd webapp && poetry run coverage report
+       run: |
+         source .venv/bin/activate
+         poetry run coverage run webapp/tests.py
+         poetry run coverage report
